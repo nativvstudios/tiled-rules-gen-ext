@@ -1,7 +1,8 @@
 var generateRulesState = {
     dialogOpen: false,
     folderPaths: [], // Store the actual paths instead of input references
-    currentDialog: null // Reference to the current dialog
+    currentDialog: null, // Reference to the current dialog
+    pathLabel: null // Reference to the path label
 }
 
 generateRulesState.generateRulesDialog = tiled.registerAction("GenerateRulesDialog", function(action) {
@@ -13,7 +14,7 @@ generateRulesState.generateRulesDialog = tiled.registerAction("GenerateRulesDial
     }
     
     // Create the dialog only once
-    generateRulesState.currentDialog = new Dialog("Generate Rules");
+    generateRulesState.currentDialog = new Dialog("Generate Rules.txt");
     generateRulesState.dialogOpen = true;
     
     // Initial population of the dialog
@@ -29,6 +30,7 @@ generateRulesState.generateRulesDialog = tiled.registerAction("GenerateRulesDial
     generateRulesState.currentDialog.show();
 });
 
+
 // Function to refresh the dialog content
 generateRulesState.refreshDialogContent = function() {
     let dialog = generateRulesState.currentDialog;
@@ -37,15 +39,43 @@ generateRulesState.refreshDialogContent = function() {
     // Clear the current content
     dialog.clear();
     
-    dialog.addLabel("Please select your main project folder");
+    dialog.addHeading("Please select your main project folder", true);
     dialog.addSeparator();
     
     // Add the main folder input
     dialog.addNewRow();
-    let mainFolderInput = dialog.addTextInput("Main project folder");
+    dialog.addHeading("Main project folder", true);
+    let mainFolderInput = dialog.addTextInput("");
     mainFolderInput.text = generateRulesState.folderPaths[0];
     folderInputs.push(mainFolderInput);
+
+    dialog.addHeading("Press + to scan folders under: ", true);
     
+    // Add the dynamic label showing the path
+    // If text exists, show it; otherwise show a placeholder
+    if (mainFolderInput.text && mainFolderInput.text.length > 0) {
+        generateRulesState.pathLabel = dialog.addLabel(mainFolderInput.text);
+    } else {
+        generateRulesState.pathLabel = dialog.addLabel("[No folder selected]");
+    }
+
+    // Connect to textChanged to update the label in real-time
+    mainFolderInput.textChanged.connect(function() {
+        // Store the value in the state
+        generateRulesState.folderPaths[0] = mainFolderInput.text;
+        
+        // Update the label immediately
+        if (generateRulesState.pathLabel) {
+            if (mainFolderInput.text && mainFolderInput.text.length > 0) {
+                generateRulesState.pathLabel.text = mainFolderInput.text;
+            } else {
+                generateRulesState.pathLabel.text = "[No folder selected]";
+            }
+        }
+    });
+    
+    dialog.addSeparator();
+
     // Add all the additional folder inputs
     for(let i = 1; i < generateRulesState.folderPaths.length; i++) {
         dialog.addNewRow();
@@ -53,13 +83,17 @@ generateRulesState.refreshDialogContent = function() {
         folderInput.text = generateRulesState.folderPaths[i];
         folderInputs.push(folderInput);
     }
-    
+
     dialog.addNewRow();
     
+    if(generateRulesState.folderPaths.length > 1) {
+        dialog.addSeparator();
+    }
+
     // Add buttons row with + and - buttons
     let addButton = dialog.addButton("+");
     let removeButton = dialog.addButton("-");
-    
+
     addButton.clicked.connect(function() {
         // Save current input values
         for(let i = 0; i < folderInputs.length; i++) {
@@ -86,6 +120,7 @@ generateRulesState.refreshDialogContent = function() {
             
             // Refresh the dialog
             generateRulesState.refreshDialogContent();
+
         } else {
             tiled.log("Cannot remove main folder input");
         }
