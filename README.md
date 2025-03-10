@@ -3,7 +3,7 @@
 ## Overview
 Tiled Rules Generator is an extension for the Tiled Map Editor that will help you manage and generate rules.txt files. It enables you to consolidate rules from multiple folders into a single rules.txt file for use in your maps.
 
-![Tiled Rules Generator UI](screenshot.png)
+![Tiled Rules Generator UI (currently)](screenshot.png)
 
 ## Current Status: Work in Progress
 This extension is currently in early development. At present, it only provides a user interface without full functionality.
