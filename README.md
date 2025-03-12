@@ -1,34 +1,31 @@
 # Tiled Rules Generator
 
 ## Overview
-Tiled Rules Generator is an extension for the Tiled Map Editor that will help you manage and generate rules.txt files. It enables you to consolidate rules from multiple folders into a single rules.txt file for use in your maps.
+Tiled Rules Generator is an extension for the Tiled Map Editor that helps you manage and generate rules.txt files. It enables you to consolidate rules from multiple folders into a single rules.txt file for use in your maps, with support for Tiled's wildcard patterns to control which maps specific rules apply to.
 
 ![Tiled Rules Generator UI (currently)](screenshot.png)
 
-## Current Status: Work in Progress
-This extension is currently in early development. At present, it only provides a user interface without full functionality.
+## Current Status
+This extension is now functional and ready for use.
 
-### What Works Now:
-- Dynamic UI for selecting the main project folder
-- Adding/removing additional folders to scan
-- Basic folder content scanning and logging
-- UI resizing based on the number of folders added
-
-### What's Coming:
-- Actual rules.txt generation based on rules found in scanned folders
-- Rule validation and conflict detection
-- Rule merging and prioritization options
-- Custom rule inclusion/exclusion
+### Features:
+- Scan multiple folders for .tmx rule files
+- Apply wildcard patterns to control which maps rules apply to (e.g., [town*], [dungeon*])
+- Automatic generation of properly formatted rules.txt files
+- Dynamic UI for adding/removing folders to scan
+- Detailed logging of scanned files
+- Built-in help documentation
+- Smart handling of file paths
 
 ## Purpose
-The purpose of this extension is to simplify the management of rule files in Tiled projects. Rather than manually creating and maintaining rules.txt files, this tool will:
+The purpose of this extension is to simplify the management of rule files in Tiled projects. Rather than manually creating and maintaining rules.txt files, this tool:
 
-1. Scan selected folders for rule files
-2. Consolidate all found rules into a single rules.txt file
-3. Place this file in your main project folder
-4. Allow you to use all rules in one map without manual copying
+1. Scans selected folders for .tmx rule files
+2. Allows you to specify which maps each folder's rules should apply to
+3. Consolidates all found rules into a single rules.txt file
+4. Places this file in your specified location
 
-This will be particularly useful for larger projects with many different tilesets and rules spread across multiple folders.
+This eliminates the need to manually edit rules.txt files every time you add or modify rule maps, making the automapping workflow more efficient, especially for larger projects with many different tilesets and rules spread across multiple folders.
 
 ## Installation
 
@@ -43,11 +40,32 @@ This will be particularly useful for larger projects with many different tileset
 ## Usage
 
 1. Open the dialog from the Map menu
-2. Set your main project folder (where the final rules.txt will be placed)
-3. Add additional folders to scan by clicking the "+" button
-4. Remove folders by selecting them and clicking the "-" button
-5. Click "Scan" to see the contents of the selected folders (currently only logs to the Tiled console)
-6. Click "Generate" to create the rules.txt file (functionality not yet implemented)
+2. Specify the output path for your rules.txt file
+   - You can specify either a full file path or just a directory (rules.txt will be added automatically)
+3. Add folders to scan containing your .tmx rule files
+4. For each folder, specify a wildcard pattern to control which maps these rules apply to:
+   - `[*]` - Apply to all maps (default)
+   - `[town*]` - Apply only to maps starting with "town"
+   - `[dungeon*]` - Apply only to maps starting with "dungeon"
+5. Add additional folders using the "+" button or remove them with the "-" button
+6. Click "Scan" to preview which .tmx files will be included (logs to the Tiled console)
+7. Click "Generate" to create the consolidated rules.txt file
+8. Click the "?" button for additional help and information
+
+## Understanding Tiled Wildcards
+
+This extension supports Tiled's wildcard system for rules.txt files. Each folder's rules can be set to apply only to specific maps:
+
+- A pattern like `[town*]` means "apply these rules only to maps whose filenames start with 'town'"
+- The pattern `[*]` means "apply these rules to all maps"
+- You can organize your rules by category (buildings, terrain, etc.) and control where each category applies
+
+## Future Enhancements
+
+- Rule validation and conflict detection
+- Rule merging and prioritization options
+- Custom rule inclusion/exclusion
+- Preview of generated rules.txt content in the dialog
 
 ## Contributing
 
@@ -58,10 +76,10 @@ This extension is open for contributions. If you'd like to help develop this too
 3. Submit a pull request
 
 ### Development Focus Areas:
-- Implementing the actual rules.txt generation functionality
 - Improving the UI/UX of the extension
 - Adding support for rule filtering or categorization
 - Creating better documentation and examples
+- Adding a visual preview of the rules.txt structure
 
 ## License
 
