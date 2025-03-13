@@ -7,6 +7,77 @@ var generateRulesState = {
     outputPath: "" // Where to save the rules.txt file
 }
 
+// Shows a notification dialog with a title and message
+// type can be "info", "success", "error", or "warning"
+generateRulesState.showNotification = function(title, message, type) {
+    let notificationDialog = new Dialog(title);
+    
+    // Create an icon based on the type
+    let iconText = "";
+    switch(type) {
+        case "success":
+            iconText = "✓"; // Checkmark
+            break;
+        case "error":
+            iconText = "✗"; // X mark
+            break;
+        case "warning":
+            iconText = "⚠"; // Warning
+            break;
+        case "info":
+        default:
+            iconText = "ℹ"; // Info
+            break;
+    }
+    
+    notificationDialog.addNewRow();
+    let iconLabel = notificationDialog.addLabel(iconText);
+    iconLabel.styleSheet = "font-size: 24px; margin-right: 10px;";
+    
+    // Add color based on the type
+    switch(type) {
+        case "success":
+            iconLabel.styleSheet += " color: green;";
+            break;
+        case "error":
+            iconLabel.styleSheet += " color: red;";
+            break;
+        case "warning":
+            iconLabel.styleSheet += " color: orange;";
+            break;
+        case "info":
+            iconLabel.styleSheet += " color: blue;";
+            break;
+    }
+    
+    let messageLabel = notificationDialog.addLabel(message);
+    messageLabel.styleSheet = "font-size: 14px;";
+    notificationDialog.addNewRow();
+    
+    let okButton = notificationDialog.addButton("OK");
+    okButton.clicked.connect(function() {
+        notificationDialog.done(Dialog.Accepted);
+    });
+    
+    notificationDialog.minimumWidth = 300;
+    
+    // Center on screen if possible
+    try {
+        // This might not work in all versions of Tiled
+        notificationDialog.setGeometry(
+            (tiled.activeAsset.width - 300) / 2,
+            (tiled.activeAsset.height - 100) / 2,
+            300, 100
+        );
+    } catch(e) {
+        // Ignore positioning errors
+    }
+    
+    notificationDialog.show();
+    
+    return notificationDialog;
+};
+
 // Register the action with Tiled
 generateRulesState.generateRulesDialog = tiled.registerAction("GenerateRulesDialog", function(action) {
     // Don't open multiple dialogs
@@ -115,6 +186,7 @@ generateRulesState.refreshDialogContent = function() {
             generateRulesState.wildcardPatterns.pop();
             generateRulesState.refreshDialogContent();
         } else {
+            generateRulesState.showNotification("Error", "Can't remove the last folder!", "error");
             tiled.log("Can't remove the last folder!");
         }
     });
@@ -130,6 +202,9 @@ generateRulesState.refreshDialogContent = function() {
         }
         
         tiled.log("Scanning folders for rule maps:");
+        
+        let totalTmxFiles = 0;
+        let validFolders = 0;
         
         for(let i = 0; i < generateRulesState.folderPaths.length; i++) {
             let path = String(generateRulesState.folderPaths[i]);
@@ -150,10 +225,21 @@ generateRulesState.refreshDialogContent = function() {
                 for (let file of tmxFiles) {
                     tiled.log(`  - ${file}`);
                 }
+                
+                totalTmxFiles += tmxFiles.length;
+                validFolders++;
+                
             } catch(e) {
                 tiled.log(`  Error scanning: ${e}`);
             }
         }
+        
+        // Show a notification with the scan results
+        generateRulesState.showNotification(
+            "Scan Results", 
+            `Found ${totalTmxFiles} rule files across ${validFolders} folders.`, 
+            "info"
+        );
     });
     
     dialog.addNewRow();
@@ -175,15 +261,25 @@ generateRulesState.refreshDialogContent = function() {
         }
         
         if(!generateRulesState.outputPath) {
-            tiled.log("Error: No output path specified");
+            generateRulesState.showNotification("Error", "No output path specified", "error");
             return;
         }
         
         // Generate the rules.txt file
         try {
             generateRulesState.generateRulesFile();
+            
+            // Show success notification
+            generateRulesState.showNotification(
+                "Success", 
+                `rules.txt has been generated and placed in:\n${generateRulesState.outputPath}`, 
+                "success"
+            );
+            
             tiled.log("Rules.txt file successfully generated at: " + generateRulesState.outputPath);
         } catch(e) {
+            // Show error notification
+            generateRulesState.showNotification("Error", "Failed to generate rules.txt: " + e, "error");
             tiled.log("Error generating rules.txt: " + e);
         }
     });
