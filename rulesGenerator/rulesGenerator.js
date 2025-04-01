@@ -362,6 +362,12 @@ generateRulesState.generateRulesFile = function() {
             // Sort alphabetically
             tmxFiles.sort();
             
+            // Add the wildcard pattern once at the top if provided and valid
+            if(wildcard && wildcard.trim() !== '') {
+                content.push(wildcard);
+            }
+            
+            // Add all rule files
             for(let file of tmxFiles) {
                 // Format the path correctly
                 let rulePath = path;
@@ -369,11 +375,6 @@ generateRulesState.generateRulesFile = function() {
                     rulePath += '/';
                 }
                 rulePath += file;
-                
-                // Add the wildcard pattern if provided and valid
-                if(wildcard && wildcard.trim() !== '') {
-                    content.push(wildcard);
-                }
                 
                 // Add the rule file path
                 content.push(rulePath);
@@ -435,6 +436,7 @@ generateRulesState.generateRulesFile = function() {
 
 // Set the text that shows in the menu
 generateRulesState.generateRulesDialog.text = "Generate Rules.txt";
+generateRulesState.generateRulesDialog.icon = "rulesGenerator.png";
 
 // Add to the Map menu
 tiled.extendMenu("Map", [
